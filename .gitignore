@@ -1,0 +1,31 @@
+# Secrets / local config
+.env
+*.env.local
+
+# Databases
+*.db
+*.sqlite3
+backend/data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid

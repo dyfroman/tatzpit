@@ -1,0 +1,467 @@
+[
+  {
+    "_weight": 18,
+    "rule": {
+      "id": "5710",
+      "level": 5,
+      "description": "sshd: Attempt to login using a non-existent user",
+      "groups": ["syslog", "sshd", "authentication_failed", "invalid_login"],
+      "mitre": {
+        "id": ["T1110.001", "T1589.001"],
+        "tactic": ["Credential Access", "Reconnaissance"],
+        "technique": ["Password Guessing", "Credentials"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sshd", "parent": "sshd"},
+    "data": {"srcip": "185.220.101.45", "srcport": "53212", "srcuser": "admin"},
+    "full_log": "Jun 12 13:01:02 web-01 sshd[18829]: Invalid user admin from 185.220.101.45 port 53212"
+  },
+  {
+    "_weight": 14,
+    "rule": {
+      "id": "5760",
+      "level": 5,
+      "description": "sshd: authentication failed.",
+      "groups": ["syslog", "sshd", "authentication_failed"],
+      "mitre": {
+        "id": ["T1110.001"],
+        "tactic": ["Credential Access"],
+        "technique": ["Password Guessing"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sshd", "parent": "sshd"},
+    "data": {"srcip": "185.220.101.45", "srcport": "53388", "srcuser": "root"},
+    "full_log": "Jun 12 13:01:09 web-01 sshd[18841]: Failed password for root from 185.220.101.45 port 53388 ssh2"
+  },
+  {
+    "_weight": 6,
+    "rule": {
+      "id": "5712",
+      "level": 10,
+      "description": "sshd: brute force trying to get access to the system. Non existent user.",
+      "groups": ["syslog", "sshd", "authentication_failures"],
+      "frequency": 8,
+      "mitre": {
+        "id": ["T1110"],
+        "tactic": ["Credential Access"],
+        "technique": ["Brute Force"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sshd", "parent": "sshd"},
+    "data": {"srcip": "185.220.101.45"},
+    "full_log": "Jun 12 13:02:44 web-01 sshd[18902]: Invalid user oracle from 185.220.101.45 port 54101"
+  },
+  {
+    "_weight": 2,
+    "rule": {
+      "id": "100020",
+      "level": 12,
+      "description": "Multiple authentication failures followed by a success - possible successful brute force attack.",
+      "groups": ["local", "authentication_success", "attack"],
+      "mitre": {
+        "id": ["T1110", "T1078"],
+        "tactic": ["Credential Access", "Initial Access"],
+        "technique": ["Brute Force", "Valid Accounts"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sshd", "parent": "sshd"},
+    "data": {"srcip": "185.220.101.45", "dstuser": "deploy"},
+    "full_log": "Jun 12 13:04:18 web-01 sshd[18977]: Accepted password for deploy from 185.220.101.45 port 54200 ssh2"
+  },
+  {
+    "_weight": 8,
+    "rule": {
+      "id": "5715",
+      "level": 3,
+      "description": "sshd: authentication success.",
+      "groups": ["syslog", "sshd", "authentication_success"],
+      "mitre": {
+        "id": ["T1078"],
+        "tactic": ["Initial Access", "Persistence"],
+        "technique": ["Valid Accounts"]
+      }
+    },
+    "agent": {"id": "002", "name": "db-01"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sshd", "parent": "sshd"},
+    "data": {"srcip": "10.0.20.14", "dstuser": "dbadmin"},
+    "full_log": "Jun 12 09:12:51 db-01 sshd[4411]: Accepted publickey for dbadmin from 10.0.20.14 port 50122 ssh2"
+  },
+  {
+    "_weight": 6,
+    "rule": {
+      "id": "5402",
+      "level": 3,
+      "description": "Successful sudo to ROOT executed.",
+      "groups": ["syslog", "sudo"],
+      "mitre": {
+        "id": ["T1548.003"],
+        "tactic": ["Privilege Escalation", "Defense Evasion"],
+        "technique": ["Sudo and Sudo Caching"]
+      }
+    },
+    "agent": {"id": "002", "name": "db-01"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sudo", "parent": "sudo"},
+    "data": {"srcuser": "dbadmin", "dstuser": "root", "command": "/usr/bin/systemctl restart postgresql"},
+    "full_log": "Jun 12 09:13:10 db-01 sudo: dbadmin : TTY=pts/0 ; PWD=/home/dbadmin ; USER=root ; COMMAND=/usr/bin/systemctl restart postgresql"
+  },
+  {
+    "_weight": 3,
+    "rule": {
+      "id": "5404",
+      "level": 10,
+      "description": "sudo: Three failed attempts to run sudo.",
+      "groups": ["syslog", "sudo"],
+      "mitre": {
+        "id": ["T1548.003"],
+        "tactic": ["Privilege Escalation"],
+        "technique": ["Sudo and Sudo Caching"]
+      }
+    },
+    "agent": {"id": "004", "name": "app-02"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "sudo", "parent": "sudo"},
+    "data": {"srcuser": "www-data", "dstuser": "root"},
+    "full_log": "Jun 12 11:42:33 app-02 sudo: www-data : 3 incorrect password attempts ; TTY=pts/1 ; PWD=/var/www ; USER=root ; COMMAND=/bin/bash"
+  },
+  {
+    "_weight": 7,
+    "rule": {
+      "id": "550",
+      "level": 7,
+      "description": "Integrity checksum changed.",
+      "groups": ["ossec", "syscheck", "syscheck_entry_modified", "syscheck_file"],
+      "mitre": {
+        "id": ["T1565.001"],
+        "tactic": ["Impact"],
+        "technique": ["Stored Data Manipulation"]
+      }
+    },
+    "agent": {"id": "004", "name": "app-02"},
+    "location": "syscheck",
+    "decoder": {"name": "syscheck_integrity_changed"},
+    "syscheck": {
+      "path": "/etc/passwd",
+      "mode": "realtime",
+      "event": "modified",
+      "md5_after": "d41d8cd98f00b204e9800998ecf8427e",
+      "sha1_after": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    "full_log": "File '/etc/passwd' modified\nMode: realtime\nChanged attributes: size,mtime,md5,sha1,sha256"
+  },
+  {
+    "_weight": 4,
+    "rule": {
+      "id": "554",
+      "level": 5,
+      "description": "File added to the system.",
+      "groups": ["ossec", "syscheck", "syscheck_entry_added", "syscheck_file"],
+      "mitre": {
+        "id": ["T1565.001"],
+        "tactic": ["Impact"],
+        "technique": ["Stored Data Manipulation"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "syscheck",
+    "decoder": {"name": "syscheck_new_entry"},
+    "syscheck": {
+      "path": "/var/www/html/uploads/shell.php",
+      "mode": "realtime",
+      "event": "added"
+    },
+    "full_log": "File '/var/www/html/uploads/shell.php' added\nMode: realtime"
+  },
+  {
+    "_weight": 3,
+    "rule": {
+      "id": "510",
+      "level": 7,
+      "description": "Host-based anomaly detection event (rootcheck).",
+      "groups": ["ossec", "rootcheck"],
+      "mitre": {
+        "id": ["T1014"],
+        "tactic": ["Defense Evasion"],
+        "technique": ["Rootkit"]
+      }
+    },
+    "agent": {"id": "002", "name": "db-01"},
+    "location": "rootcheck",
+    "decoder": {"name": "rootcheck"},
+    "data": {"title": "Process '2812' hidden from /proc."},
+    "full_log": "Process '2812' hidden from /proc. Possible kernel level rootkit."
+  },
+  {
+    "_weight": 10,
+    "rule": {
+      "id": "31101",
+      "level": 5,
+      "description": "Web server 400 error code.",
+      "groups": ["web", "accesslog", "attack"],
+      "mitre": {
+        "id": ["T1595.002"],
+        "tactic": ["Reconnaissance"],
+        "technique": ["Vulnerability Scanning"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/nginx/access.log",
+    "decoder": {"name": "web-accesslog"},
+    "data": {"srcip": "45.155.205.233", "url": "/.env", "id": "404", "protocol": "GET"},
+    "full_log": "45.155.205.233 - - [12/Jun/2026:13:20:11 +0000] \"GET /.env HTTP/1.1\" 404 153 \"-\" \"Mozilla/5.0 zgrab/0.x\""
+  },
+  {
+    "_weight": 4,
+    "rule": {
+      "id": "31151",
+      "level": 10,
+      "description": "Multiple web server 400 error codes from same source ip.",
+      "groups": ["web", "accesslog", "web_scan", "recon"],
+      "frequency": 14,
+      "mitre": {
+        "id": ["T1595.002"],
+        "tactic": ["Reconnaissance"],
+        "technique": ["Vulnerability Scanning"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/nginx/access.log",
+    "decoder": {"name": "web-accesslog"},
+    "data": {"srcip": "45.155.205.233", "url": "/wp-login.php", "id": "404", "protocol": "GET"},
+    "full_log": "45.155.205.233 - - [12/Jun/2026:13:21:40 +0000] \"GET /wp-login.php HTTP/1.1\" 404 153 \"-\" \"Mozilla/5.0 zgrab/0.x\""
+  },
+  {
+    "_weight": 3,
+    "rule": {
+      "id": "31103",
+      "level": 7,
+      "description": "SQL injection attempt.",
+      "groups": ["web", "accesslog", "attack", "sql_injection"],
+      "mitre": {
+        "id": ["T1190"],
+        "tactic": ["Initial Access"],
+        "technique": ["Exploit Public-Facing Application"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/nginx/access.log",
+    "decoder": {"name": "web-accesslog"},
+    "data": {"srcip": "91.92.243.18", "url": "/products?id=1%27%20OR%20%271%27=%271", "id": "200", "protocol": "GET"},
+    "full_log": "91.92.243.18 - - [12/Jun/2026:14:02:09 +0000] \"GET /products?id=1%27%20OR%20%271%27=%271 HTTP/1.1\" 200 4812 \"-\" \"sqlmap/1.8\""
+  },
+  {
+    "_weight": 1,
+    "rule": {
+      "id": "100100",
+      "level": 13,
+      "description": "Possible exploitation of public-facing application - known CVE pattern in request.",
+      "groups": ["local", "web", "attack", "exploit"],
+      "mitre": {
+        "id": ["T1190"],
+        "tactic": ["Initial Access"],
+        "technique": ["Exploit Public-Facing Application"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/nginx/access.log",
+    "decoder": {"name": "web-accesslog"},
+    "data": {"srcip": "91.92.243.18", "url": "/cgi-bin/luci/;stok=/locale?form=country", "id": "500", "protocol": "POST"},
+    "full_log": "91.92.243.18 - - [12/Jun/2026:14:05:55 +0000] \"POST /cgi-bin/luci/;stok=/locale?form=country HTTP/1.1\" 500 0 \"-\" \"curl/8.5\""
+  },
+  {
+    "_weight": 2,
+    "rule": {
+      "id": "5104",
+      "level": 8,
+      "description": "Interface entered in promiscuous(sniffing) mode.",
+      "groups": ["syslog", "linuxkernel", "promisc"],
+      "mitre": {
+        "id": ["T1040"],
+        "tactic": ["Credential Access", "Discovery"],
+        "technique": ["Network Sniffing"]
+      }
+    },
+    "agent": {"id": "002", "name": "db-01"},
+    "location": "/var/log/kern.log",
+    "decoder": {"name": "kernel"},
+    "full_log": "Jun 12 10:31:02 db-01 kernel: [812345.123456] device eth0 entered promiscuous mode"
+  },
+  {
+    "_weight": 3,
+    "rule": {
+      "id": "2902",
+      "level": 7,
+      "description": "New dpkg (Debian Package) installed.",
+      "groups": ["syslog", "dpkg", "config_changed"],
+      "mitre": {
+        "id": ["T1072"],
+        "tactic": ["Execution"],
+        "technique": ["Software Deployment Tools"]
+      }
+    },
+    "agent": {"id": "004", "name": "app-02"},
+    "location": "/var/log/dpkg.log",
+    "decoder": {"name": "dpkg"},
+    "data": {"package": "netcat-traditional", "version": "1.10-48"},
+    "full_log": "2026-06-12 11:55:02 status installed netcat-traditional:amd64 1.10-48"
+  },
+  {
+    "_weight": 2,
+    "rule": {
+      "id": "533",
+      "level": 7,
+      "description": "Listened ports status (netstat) changed (new port opened or closed).",
+      "groups": ["ossec", "netstat"],
+      "mitre": {
+        "id": ["T1571"],
+        "tactic": ["Command and Control"],
+        "technique": ["Non-Standard Port"]
+      }
+    },
+    "agent": {"id": "004", "name": "app-02"},
+    "location": "netstat listening ports",
+    "decoder": {"name": "ossec"},
+    "full_log": "ossec: output: 'netstat listening ports':\ntcp 0.0.0.0:4444 0.0.0.0:* LISTEN 31337/nc"
+  },
+  {
+    "_weight": 5,
+    "rule": {
+      "id": "60122",
+      "level": 10,
+      "description": "Logon Failure - Unknown user or bad password.",
+      "groups": ["windows", "win_authentication_failed"],
+      "mitre": {
+        "id": ["T1110"],
+        "tactic": ["Credential Access"],
+        "technique": ["Brute Force"]
+      }
+    },
+    "agent": {"id": "003", "name": "win-dc01"},
+    "location": "EventChannel",
+    "decoder": {"name": "windows_eventchannel"},
+    "data": {
+      "win": {
+        "system": {"eventID": "4625", "channel": "Security", "providerName": "Microsoft-Windows-Security-Auditing"},
+        "eventdata": {"targetUserName": "Administrator", "ipAddress": "10.0.30.77", "logonType": "3", "failureReason": "%%2313"}
+      }
+    },
+    "full_log": "Windows Security event 4625: An account failed to log on. Account Name: Administrator, Source: 10.0.30.77"
+  },
+  {
+    "_weight": 1,
+    "rule": {
+      "id": "60204",
+      "level": 12,
+      "description": "Multiple Windows logon failures (possible password spraying).",
+      "groups": ["windows", "win_authentication_failures"],
+      "frequency": 12,
+      "mitre": {
+        "id": ["T1110.003"],
+        "tactic": ["Credential Access"],
+        "technique": ["Password Spraying"]
+      }
+    },
+    "agent": {"id": "003", "name": "win-dc01"},
+    "location": "EventChannel",
+    "decoder": {"name": "windows_eventchannel"},
+    "data": {
+      "win": {
+        "system": {"eventID": "4625", "channel": "Security"},
+        "eventdata": {"targetUserName": "svc-backup", "ipAddress": "10.0.30.77", "logonType": "3"}
+      }
+    },
+    "full_log": "Windows Security event 4625 (x12): An account failed to log on. Source: 10.0.30.77"
+  },
+  {
+    "_weight": 1,
+    "rule": {
+      "id": "52502",
+      "level": 12,
+      "description": "ClamAV: Virus detected",
+      "groups": ["clamd", "virus", "malware"],
+      "mitre": {
+        "id": ["T1204.002"],
+        "tactic": ["Execution"],
+        "technique": ["Malicious File"]
+      }
+    },
+    "agent": {"id": "001", "name": "web-01"},
+    "location": "/var/log/clamav/clamav.log",
+    "decoder": {"name": "clamd"},
+    "data": {"virustotal_alike": "Win.Trojan.Generic", "file": "/var/www/html/uploads/invoice.exe"},
+    "full_log": "Jun 12 14:11:38 web-01 clamd[902]: /var/www/html/uploads/invoice.exe: Win.Trojan.Generic-9912 FOUND"
+  },
+  {
+    "_weight": 2,
+    "rule": {
+      "id": "80792",
+      "level": 9,
+      "description": "Audit: Suspicious command execution: netcat with listen flag.",
+      "groups": ["audit", "audit_command", "local"],
+      "mitre": {
+        "id": ["T1059.004"],
+        "tactic": ["Execution"],
+        "technique": ["Unix Shell"]
+      }
+    },
+    "agent": {"id": "004", "name": "app-02"},
+    "location": "/var/log/audit/audit.log",
+    "decoder": {"name": "auditd"},
+    "data": {"audit": {"command": "nc", "exe": "/usr/bin/nc.traditional", "uid": "33", "euid": "33"}},
+    "full_log": "type=EXECVE msg=audit(1781256722.331:9112): argc=3 a0=\"nc\" a1=\"-lvp\" a2=\"4444\""
+  },
+  {
+    "_weight": 4,
+    "rule": {
+      "id": "5501",
+      "level": 3,
+      "description": "PAM: Login session opened.",
+      "groups": ["pam", "syslog", "authentication_success"],
+      "mitre": {
+        "id": ["T1078"],
+        "tactic": ["Initial Access"],
+        "technique": ["Valid Accounts"]
+      }
+    },
+    "agent": {"id": "000", "name": "wazuh-manager"},
+    "location": "/var/log/auth.log",
+    "decoder": {"name": "pam"},
+    "data": {"dstuser": "ubuntu"},
+    "full_log": "Jun 12 08:00:14 wazuh-manager su[2210]: pam_unix(su:session): session opened for user ubuntu by (uid=0)"
+  },
+  {
+    "_weight": 3,
+    "rule": {
+      "id": "1002",
+      "level": 2,
+      "description": "Unknown problem somewhere in the system.",
+      "groups": ["syslog", "errors"]
+    },
+    "agent": {"id": "002", "name": "db-01"},
+    "location": "/var/log/syslog",
+    "decoder": {"name": "syslog"},
+    "full_log": "Jun 12 12:18:43 db-01 systemd[1]: postgresql.service: Main process exited, code=killed, status=9/KILL"
+  },
+  {
+    "_weight": 2,
+    "rule": {
+      "id": "502",
+      "level": 3,
+      "description": "Ossec server started.",
+      "groups": ["ossec"]
+    },
+    "agent": {"id": "000", "name": "wazuh-manager"},
+    "location": "ossec",
+    "decoder": {"name": "ossec"},
+    "full_log": "ossec: Manager started."
+  }
+]

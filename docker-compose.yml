@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - path: ./.env
+        required: false
+    environment:
+      DB_PATH: /app/data/tatzpit.db
+    volumes:
+      - tatzpit-data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  tatzpit-data:
