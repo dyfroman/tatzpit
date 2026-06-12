@@ -8,10 +8,17 @@
 
 ## Screenshots
 
-<!-- TODO: replace with real screenshots -->
-| Dashboard | Alerts + detail drawer |
-|---|---|
-| ![Dashboard](docs/screenshot-dashboard.png) | ![Alerts](docs/screenshot-alerts.png) |
+**Dashboard** — severity cards and the 24h stacked alert timeline (note the brute-force spike):
+
+![Dashboard](docs/screenshot-dashboard.png)
+
+**Top triggered rules & noisiest agents:**
+
+![Top rules and agents](docs/screenshot-top-rules.png)
+
+**Alerts explorer** — detail drawer with MITRE ATT&CK mapping and raw JSON viewer:
+
+![Alerts with detail drawer](docs/screenshot-alerts.png)
 
 ## Architecture
 
