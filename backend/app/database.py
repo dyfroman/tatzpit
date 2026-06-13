@@ -1,7 +1,7 @@
 """SQLite storage via SQLAlchemy 2.0."""
 import os
 
-from sqlalchemy import Index, Integer, String, Text, create_engine
+from sqlalchemy import Index, Integer, String, Text, create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 from .config import get_settings
@@ -41,10 +41,23 @@ def make_engine(db_path: str | None = None):
     path = db_path or get_settings().db_path
     if path != ":memory:":
         os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    return create_engine(
+    engine = create_engine(
         f"sqlite:///{path}",
         connect_args={"check_same_thread": False},
     )
+
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragmas(dbapi_connection, _record):  # noqa: ANN001
+        # WAL lets the dashboard read while the poller writes; busy_timeout
+        # makes a reader wait briefly for a lock instead of failing outright
+        # with "database is locked" — which surfaced as 500s on the stats
+        # endpoints during the heavy initial catch-up poll.
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA busy_timeout=5000")
+        cursor.close()
+
+    return engine
 
 
 engine = make_engine()

@@ -15,6 +15,7 @@ from ..schemas import (
     TopAgent,
     TopRule,
 )
+from ..severity import SEVERITY_ORDER
 from ..state import poller_state
 
 router = APIRouter(prefix="/api/stats", tags=["stats"])
@@ -34,7 +35,10 @@ def summary(hours: int = Query(24, ge=1, le=720), db: Session = Depends(get_db))
         .where(Alert.timestamp >= since)
         .group_by(Alert.severity)
     ).all()
-    counts = SeverityCounts(**{sev: n for sev, n in rows})
+    # Only feed known buckets to SeverityCounts; an unexpected severity value
+    # must not 500 the whole endpoint (total below still counts every row).
+    known = set(SEVERITY_ORDER)
+    counts = SeverityCounts(**{sev: n for sev, n in rows if sev in known})
     last = db.scalar(select(func.max(Alert.timestamp)))
     return SummaryStats(
         total=sum(n for _, n in rows),

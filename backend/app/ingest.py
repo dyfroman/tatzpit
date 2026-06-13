@@ -6,6 +6,7 @@ normalizer handles every source.
 """
 import json
 import logging
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,6 +15,27 @@ from .database import Alert
 from .severity import severity_from_level
 
 logger = logging.getLogger(__name__)
+
+
+def _canonical_timestamp(value: str) -> str:
+    """Normalize a Wazuh timestamp to ISO-8601 UTC with a uniform 'Z' suffix.
+
+    Sources disagree on the suffix: the indexer emits '...+0000', while demo
+    and SSH emit '...Z'. Every time filter (summary/timeline/alerts?since)
+    compares timestamps as plain strings, and a mix of '+' and 'Z' suffixes
+    breaks lexicographic ordering. Re-emit one canonical form for all sources.
+    """
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    try:
+        dt = datetime.fromisoformat(raw)
+    except ValueError:
+        return raw  # leave anything we can't parse untouched
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    dt = dt.astimezone(timezone.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{dt.microsecond // 1000:03d}Z"
 
 
 def normalize(raw: dict) -> Alert | None:
@@ -26,7 +48,7 @@ def normalize(raw: dict) -> Alert | None:
     level = int(rule["level"])
     return Alert(
         wazuh_id=str(raw["id"]),
-        timestamp=str(raw.get("timestamp", "")),
+        timestamp=_canonical_timestamp(str(raw.get("timestamp", ""))),
         agent_id=str((raw.get("agent") or {}).get("id", "")),
         agent_name=str((raw.get("agent") or {}).get("name", "")),
         rule_id=str(rule.get("id", "")),
