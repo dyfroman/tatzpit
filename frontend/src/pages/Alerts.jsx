@@ -33,16 +33,16 @@ function AlertDrawer({ alertId, onClose }) {
 
   return (
     <div className="fixed inset-0 z-30" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="animate-fade-in absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div
-        className="absolute inset-y-0 right-0 w-full max-w-xl overflow-y-auto border-l border-slate-700 bg-slate-950 p-5 shadow-2xl"
+        className="animate-slide-in absolute inset-y-0 right-0 w-full max-w-xl overflow-y-auto border-l border-slate-700/70 bg-slate-950/95 p-5 shadow-2xl backdrop-blur-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Alert detail</h2>
           <button
             onClick={onClose}
-            className="rounded-md border border-slate-700 px-2 py-1 text-sm text-slate-400 hover:bg-slate-800"
+            className="rounded-lg border border-slate-700 px-2.5 py-1 text-sm text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
           >
             ✕ close
           </button>
@@ -100,7 +100,7 @@ function AlertDrawer({ alertId, onClose }) {
 }
 
 const selectClass =
-  "rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-200 focus:border-sky-500 focus:outline-none";
+  "rounded-lg border border-slate-700 bg-slate-900/80 px-2.5 py-1.5 text-sm text-slate-200 transition-colors focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20";
 
 function SortHeader({ label, field, sortBy, order, onSort, className = "" }) {
   const active = sortBy === field;
@@ -171,15 +171,18 @@ export default function Alerts() {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="space-y-4">
+    <div className="animate-rise space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-white">
-          Alerts <span className="text-sm font-normal text-slate-500">({total} matching)</span>
+          Alerts{" "}
+          <span className="text-sm font-normal tabular-nums text-slate-500">
+            ({total} matching)
+          </span>
         </h1>
         <LastUpdated lastUpdated={lastUpdated} error={error} onRefresh={refresh} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+      <div className="surface flex flex-wrap items-center gap-2 rounded-xl p-3">
         <select value={severity} onChange={(e) => setParam("severity", e.target.value)} className={selectClass}>
           <option value="">All severities</option>
           {SEVERITIES.map((s) => (
@@ -225,7 +228,7 @@ export default function Alerts() {
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+      <div className="surface overflow-x-auto rounded-xl p-3">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-800 text-left text-xs uppercase tracking-wider text-slate-500">
@@ -272,21 +275,21 @@ export default function Alerts() {
       </div>
 
       <div className="flex items-center justify-between text-sm text-slate-400">
-        <span>
+        <span className="tabular-nums">
           Page {page + 1} of {pages}
         </span>
         <div className="flex gap-2">
           <button
             disabled={page === 0}
             onClick={() => setPage((p) => p - 1)}
-            className="rounded-md border border-slate-700 px-3 py-1 disabled:opacity-40 enabled:hover:bg-slate-800"
+            className="rounded-lg border border-slate-700 px-3 py-1 transition-colors disabled:opacity-40 enabled:hover:bg-slate-800 enabled:hover:text-slate-200"
           >
             ← Prev
           </button>
           <button
             disabled={page + 1 >= pages}
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-md border border-slate-700 px-3 py-1 disabled:opacity-40 enabled:hover:bg-slate-800"
+            className="rounded-lg border border-slate-700 px-3 py-1 transition-colors disabled:opacity-40 enabled:hover:bg-slate-800 enabled:hover:text-slate-200"
           >
             Next →
           </button>
